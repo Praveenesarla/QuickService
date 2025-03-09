@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Image,
   FlatList,
+  Button,
 } from 'react-native';
 import {
   GestureHandlerRootView,
@@ -32,24 +33,71 @@ import Capacity from '../assets/ride/Capacity';
 import Message from '../assets/ride/Message';
 import Call from '../assets/ride/Call';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
-import QuickMotoCard from '../components/QuickMoto';
-import QuickMoto from '../components/QuickMoto';
+import QuickMotoCard from '../components/MapViewBody/QuickMoto';
+import QuickMoto from '../components/MapViewBody/QuickMoto';
+
+import FullScreenModal from '../components/RideLoader';
+import RiderRating from '../assets/ride/RiderRating';
+import RideDetailsCard from '../components/MapViewBody/RideDetailsCard';
+import GoogleLocationSearch from '../components/MapViewBody/GoogleLocationSearch';
+import RiderDetails from '../components/MapViewHeader/RiderDetails';
+import AddressView from '../components/MapViewHeader/AddressView';
+import OTPDisplay from '../components/MapViewHeader/OTPDisplay';
 
 const {height} = Dimensions.get('window');
 
 const QuickRide = () => {
+  const rideOptions = [
+    {
+      id: 1,
+      vehicle: 'Quick Moto',
+      time: '10:38',
+      distance: '1 min away',
+      price: 74,
+      originalPrice: 80,
+    },
+    {
+      id: 2,
+      vehicle: 'Speed Bike',
+      time: '10:45',
+      distance: '2 min away',
+      price: 85,
+      originalPrice: 90,
+    },
+    {
+      id: 3,
+      vehicle: 'Fast Ride',
+      time: '10:50',
+      distance: '3 min away',
+      price: 95,
+      originalPrice: 100,
+    },
+  ];
   const [isFloatingViewVisible, setIsFloatingViewVisible] = useState(false);
-
+  const [status, setStatus] = useState('places');
+  const [isRideBooked, setIsRideBooked] = useState(false);
+  const [selectedRide, setSelectedRide] = useState(null);
   const ref = useRef();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [header, setHeader] = useState('rider');
 
   useEffect(() => {
     ref.current?.setAddressText('Some Text');
   }, []);
 
-  const firstViewInitialHeight = height * 0.3; // Starts at 30%
-  const secondViewInitialHeight = height * 0.7; // Starts at 70%
-  const firstViewExpandedHeight = height * 0.62; // Expands to 62%
-  const secondViewCollapsedHeight = height * 0.38; // Shrinks to 38%
+  const handleBookRide2 = () => {
+    setIsRideBooked(prev => !prev);
+    if (isRideBooked) {
+      setStatus('rider');
+    } else {
+      setStatus('otp');
+    }
+  };
+
+  const firstViewInitialHeight = height * 0.3;
+  const secondViewInitialHeight = height * 0.7;
+  const firstViewExpandedHeight = height * 0.62;
+  const secondViewCollapsedHeight = height * 0.38;
   const expandedPosition = firstViewExpandedHeight - firstViewInitialHeight;
 
   const translateY = useSharedValue(0);
@@ -87,9 +135,25 @@ const QuickRide = () => {
     borderTopRightRadius: 20,
   }));
 
+  const handleBookRide = () => {
+    setModalVisible(true);
+    setTimeout(() => {
+      setModalVisible(false);
+      setStatus('rider');
+    }, 2000);
+  };
+
+  const onPressPlaces = () => {
+    setStatus('List');
+  };
+
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <View style={styles.container}>
+        <FullScreenModal
+          isVisible={modalVisible}
+          onClose={() => setModalVisible(false)}
+        />
         {/* First View (Map) */}
         <Animated.View style={[styles.topView, animatedTopViewStyle]}>
           <View style={styles.mapContainer}>
@@ -107,8 +171,7 @@ const QuickRide = () => {
             {isFloatingViewVisible ? (
               <View style={styles.floatingButton}>
                 {/* Floating button */}
-                <TouchableOpacity
-                  onPress={() => setIsFloatingViewVisible(prev => !prev)}>
+                <TouchableOpacity>
                   <FloatingMenu />
                 </TouchableOpacity>
                 {/* Text input */}
@@ -118,9 +181,7 @@ const QuickRide = () => {
                 />
               </View>
             ) : (
-              <TouchableOpacity
-                onPress={() => setIsFloatingViewVisible(prev => !prev)}
-                style={styles.floatingButton2}>
+              <TouchableOpacity style={styles.floatingButton2}>
                 <FloatingMenu />
               </TouchableOpacity>
             )}
@@ -141,228 +202,50 @@ const QuickRide = () => {
           {/* Search Content */}
           <ScrollView
             keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{paddingHorizontal: responsive.padding(8)}}
             showsVerticalScrollIndicator={false}>
-            <View
-              style={{
-                backgroundColor: '#F1F1F1',
-                width: '100%',
-                height: responsive.height(54),
-                marginVertical: responsive.margin(10),
-                flexDirection: 'row',
-                alignItems: 'center',
-                borderRadius: responsive.borderRadius(8),
-                paddingHorizontal: responsive.padding(7),
-              }}>
-              <SearchLocation />
+            {status === 'List' ? (
+              <AddressView />
+            ) : status === 'rider' ? (
+              <RiderDetails />
+            ) : status === 'otp' ? (
+              <OTPDisplay />
+            ) : null}
 
-              <GooglePlacesAutocomplete
-                placeholder="Where to"
-                fetchDetails={true}
-                enablePoweredByContainer={false}
-                debounce={300}
-                styles={{
-                  textInputContainer: {
-                    flex: 1,
-                    backgroundColor: 'transparent',
-                  },
-                  textInput: {
-                    marginTop: responsive.margin(5),
-                    height: responsive.height(40),
-                    fontSize: 16,
-                    backgroundColor: 'transparent',
-                    borderBottomWidth: 0,
-                  },
-                  listView: {
-                    position: 'absolute',
-                    top: responsive.height(54),
-                    width: '100%',
-                    backgroundColor: 'white',
-                    zIndex: 999,
-                    borderRadius: 8,
-                  },
+            {status === 'places' ? (
+              <GoogleLocationSearch onPlaceSelected={onPressPlaces} />
+            ) : status === 'List' ? (
+              <FlatList
+                contentContainerStyle={{
+                  gap: 10,
+                  paddingVertical: responsive.padding(10),
                 }}
-                onPress={(data, details = null) => {
-                  console.log('Selected Place:', data, details);
-                }}
-                query={{
-                  key: 'AIzaSyAvG0ZP37y_tEwcQiLaHaCTLR9ceMHbnJ0',
-                  language: 'en',
-                }}
+                data={rideOptions}
+                keyExtractor={item => item.id.toString()}
+                renderItem={({item}) => (
+                  <QuickMoto
+                    vehicle={item.vehicle}
+                    time={item.time}
+                    distance={item.distance}
+                    price={item.price}
+                    originalPrice={item.originalPrice}
+                    isSelected={selectedRide === item.id}
+                    onPress={() => setSelectedRide(item.id)}
+                    onBookRide={handleBookRide}
+                  />
+                )}
               />
-            </View>
+            ) : status === 'rider' ? (
+              <RideDetailsCard
+                isRideBooked={isRideBooked}
+                onPressBookRide={handleBookRide2}
+              />
+            ) : (
+              <RideDetailsCard
+                isRideBooked={isRideBooked}
+                onPressBookRide={handleBookRide2}
+              />
+            )}
           </ScrollView>
-
-          {/* Rider-Boy  Details */}
-
-          {/* <View style={{paddingHorizontal: responsive.padding(13)}}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                borderBottomWidth: responsive.width(0.5),
-                paddingVertical: responsive.padding(10),
-              }}>
-              <Text
-                style={{
-                  fontFamily: 'Outfit-Medium',
-                  color: '#000000',
-                  fontSize: responsive.fontSize(14),
-                }}>
-                Ride Arrived
-              </Text>
-              <Text
-                style={{
-                  fontFamily: 'Outfit-Light',
-                  fontSize: responsive.fontSize(12),
-                }}>
-                4min away
-              </Text>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingVertical: responsive.padding(8),
-              }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  gap: 14,
-                }}>
-                <Image source={require('../assets/ride/deliveryBoy.png')} />
-                <View>
-                  <Text
-                    style={{
-                      fontSize: responsive.fontSize(16),
-                      fontFamily: 'Outfit-SemiBold',
-                      color: '#000000',
-                    }}>
-                    Gun Park
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: responsive.fontSize(10),
-                      color: '#000000',
-                      fontFamily: 'Outfit-Light',
-                    }}>
-                    Driver
-                  </Text>
-                </View>
-              </View>
-              <View style={{flexDirection: 'row', gap: 10}}>
-                <Message />
-                <Call />
-              </View>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingVertical: responsive.padding(5),
-              }}>
-              <View>
-                <Text
-                  style={{
-                    fontFamily: 'Outfit-SemiBold',
-                    fontSize: responsive.fontSize(16),
-                  }}>
-                  ₹74
-                </Text>
-                <Text
-                  style={{
-                    fontSize: responsive.fontSize(10),
-                    fontFamily: 'Outfit-Light',
-                  }}>
-                  Total Price
-                </Text>
-              </View>
-              <View>
-                <Text
-                  style={{
-                    fontSize: responsive.fontSize(16),
-                    fontFamily: 'Outfit-SemiBold',
-                  }}>
-                  GJ 04 W 504
-                </Text>
-                <Text
-                  style={{
-                    fontSize: responsive.fontSize(10),
-                    fontFamily: 'Outfit-Light',
-                  }}>
-                  Vehicle Number
-                </Text>
-              </View>
-              <View>
-                <Text
-                  style={{
-                    fontFamily: 'Outfit-SemiBold',
-                    fontSize: responsive.fontSize(16),
-                  }}>
-                  Activa
-                </Text>
-                <Text
-                  style={{
-                    fontFamily: 'Outfit-Light',
-                    fontSize: responsive.fontSize(10),
-                  }}>
-                  Vehicle Name
-                </Text>
-              </View>
-            </View>
-            <View
-              style={{
-                backgroundColor: '#B82929',
-                borderColor: '#B82929',
-                width: '100%',
-                borderRadius: responsive.borderRadius(4),
-                height: responsive.height(34),
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginVertical: responsive.padding(10),
-              }}>
-              <Text
-                style={{
-                  color: '#FAFAFA',
-                  fontSize: responsive.fontSize(14),
-                  fontFamily: 'Outfit-Medium',
-                }}>
-                Get OTP
-              </Text>
-            </View>
-          </View> */}
-
-          {/* Rider-Boy  Details */}
-
-          {/* choose Vehicle and price cards */}
-
-          {/* <View
-              style={{
-                width: '100%',
-                height: responsive.height(40),
-                backgroundColor: '#FFFFFF',
-                borderWidth: 0.5,
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingLeft: responsive.padding(15),
-                gap: 14,
-              }}>
-              <LocationDot />
-              <Text
-                style={{
-                  fontSize: responsive.fontSize(12),
-                  fontFamily: 'Outfit-Light',
-                }}>
-                2836 Waelchi Turnpike, East Leone 89676
-              </Text>
-            </View> */}
-
-          {/* Selecting Vehicles */}
-
-          {/* choose Vehicle and price cards */}
-
-          {/* <QuickMoto/> */}
-          {/* choose Vehicle and price cards */}
         </Animated.View>
       </View>
     </GestureHandlerRootView>
@@ -388,7 +271,7 @@ const styles = StyleSheet.create({
   },
   bottomView: {
     width: '100%',
-    backgroundColor: '#fff',
+    // backgroundColor: '#fff',
     position: 'absolute',
     overflow: 'hidden',
   },
@@ -411,8 +294,8 @@ const styles = StyleSheet.create({
   },
   floatingButton: {
     position: 'absolute',
-    top: responsive.height(35), // Adjust as needed
-    left: responsive.width(), // Adjust as needed
+    top: responsive.height(35),
+    left: responsive.width(),
     width: responsive.width(355),
     height: responsive.height(43),
     borderRadius: 25,
@@ -442,8 +325,8 @@ const styles = StyleSheet.create({
   },
   floatingButton2: {
     position: 'absolute',
-    top: responsive.height(35), // Adjust as needed
-    left: responsive.width(18), // Adjust as needed // Customize the color
+    top: responsive.height(35),
+    left: responsive.width(18),
     width: responsive.width(45),
     height: responsive.height(45),
     borderRadius: 25,

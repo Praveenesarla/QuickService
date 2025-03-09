@@ -11,6 +11,7 @@ import {Button} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Image} from 'react-native';
 import logo from '../assets/logo.png';
+import responsive from '../utils/responsive';
 
 const ProfileScreen = () => {
   const [userInfo, setUserInfo] = useState({
@@ -174,47 +175,76 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 10,
+    padding: responsive.padding(10),
   },
-  headerText: {fontSize: 20, fontWeight: 'bold', width: '50%'},
-  logo: {height: 40, width: 120},
-  profileLogo: {height: 40, width: 40, borderRadius: 50},
-  infoContainer: {padding: 16, backgroundColor: '#FFF', marginBottom: 10},
-  sectionTitle: {fontSize: 16, fontWeight: 'bold', marginBottom: 8},
+  headerText: {
+    fontSize: responsive.fontSize(20),
+    fontFamily: 'Outfit-SemiBold',
+    width: '50%',
+    color: '#000000',
+  },
+  logo: {height: responsive.height(40), width: responsive.width(120)},
+  profileLogo: {
+    height: responsive.height(40),
+    width: responsive.width(40),
+    borderRadius: responsive.borderRadius(50),
+  },
+  infoContainer: {
+    padding: responsive.padding(16),
+    backgroundColor: '#FFF',
+    marginBottom: responsive.margin(10),
+  },
+  sectionTitle: {
+    fontSize: responsive.fontSize(16),
+    fontFamily: 'Outfit-SemiBold',
+    marginBottom: responsive.margin(8),
+    color: '#000000',
+  },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
+    paddingVertical: responsive.padding(12),
+    borderBottomWidth: responsive.width(1),
     borderBottomColor: '#EAEAEA',
   },
-  infoLabel: {fontSize: 14, color: 'black', flex: 1, textAlign: 'left'},
+  infoLabel: {
+    fontSize: responsive.fontSize(14),
+    color: '#000000',
+    flex: 1,
+    textAlign: 'left',
+    fontFamily: 'Outfit-SemiBold',
+  },
   valueContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
     justifyContent: 'flex-end',
   },
-  infoValue: {fontSize: 14, color: 'gray', textAlign: 'right'},
+  infoValue: {
+    fontSize: responsive.fontSize(14),
+    color: '#000000',
+    textAlign: 'right',
+    fontFamily: 'Outfit-Light',
+  },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 10,
-    marginTop: 20,
+    paddingHorizontal: responsive.padding(10),
+    marginTop: responsive.margin(20),
   },
   deleteButton: {
     borderColor: 'red',
-    borderWidth: 1,
-    borderRadius: 10,
+    borderWidth: responsive.width(1),
+    borderRadius: responsive.borderRadius(10),
   },
   logoutButton: {
     borderColor: 'red',
-    borderWidth: 1,
-    borderRadius: 10,
+    borderWidth: responsive.width(1),
+    borderRadius: responsive.borderRadius(10),
   },
   buttonLabel: {
-    fontSize: 12,
+    fontSize: responsive.fontSize(12),
     color: 'red',
   },
   modalContainer: {
@@ -225,20 +255,24 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
+    padding: responsive.padding(20),
+    borderRadius: responsive.borderRadius(10),
     width: '80%',
   },
-  modalTitle: {fontSize: 18, fontWeight: 'bold', marginBottom: 10},
+  modalTitle: {
+    fontSize: responsive.fontSize(18),
+    fontWeight: 'bold',
+    marginBottom: responsive.margin(10),
+  },
   input: {
-    borderWidth: 1,
+    borderWidth: responsive.width(1),
     borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 20,
+    borderRadius: responsive.borderRadius(5),
+    padding: responsive.padding(10),
+    marginBottom: responsive.margin(20),
   },
   modalButtonContainer: {flexDirection: 'row', justifyContent: 'space-between'},
-  cancelButton: {backgroundColor: 'gray', marginRight: 10},
+  cancelButton: {backgroundColor: 'gray', marginRight: responsive.margin(10)},
   saveButton: {backgroundColor: 'blue'},
 });
 

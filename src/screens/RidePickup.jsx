@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   ImageBackground,
   StyleSheet,
@@ -6,7 +6,10 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  PermissionsAndroid,
+  Alert,
 } from 'react-native';
+import Geolocation from 'react-native-geolocation-service';
 import Close from '../assets/batteries/Icons/Close';
 import RideAdd from '../assets/batteries/Icons/RideAdd';
 import SearchIcon from '../assets/batteries/Icons/ride/SearchIcon';
@@ -15,9 +18,79 @@ import LocationUnSelect from '../assets/batteries/Icons/ride/LocationUnSelect';
 import CurrentLocation from '../assets/batteries/Icons/ride/CurrentLocation';
 import responsive from '../utils/responsive';
 import {useNavigation} from '@react-navigation/native';
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+
+const GOOGLE_API_KEY = 'AIzaSyAvG0ZP37y_tEwcQiLaHaCTLR9ceMHbnJ0';
 
 const RidePickup = () => {
+  const [location, setLocation] = useState(null);
+  const [address, setAddress] = useState('');
+  const [manualLocation, setManualLocation] = useState('');
   const navigation = useNavigation();
+
+  const requestLocationPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: 'Geolocation Permission',
+          message:
+            'We need access to your location to provide a better experience.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } catch (err) {
+      console.warn('Permission error:', err);
+      return false;
+    }
+  };
+
+  const getLocation = async () => {
+    const hasPermission = await requestLocationPermission();
+    if (!hasPermission) {
+      Alert.alert(
+        'Permission Denied',
+        'Location access is required to fetch your position.',
+      );
+      return;
+    }
+
+    Geolocation.getCurrentPosition(
+      async position => {
+        const {latitude, longitude} = position.coords;
+        console.log('Lat:', latitude, 'Lng:', longitude);
+        setLocation({latitude, longitude});
+        fetchAddress(latitude, longitude);
+      },
+      error => {
+        console.log('Geolocation error:', error);
+        Alert.alert('Error', 'Failed to fetch location. Please try again.');
+      },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+    );
+  };
+
+  const fetchAddress = async (lat, lng) => {
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_API_KEY}`,
+      );
+      const data = await response.json();
+      if (data.status === 'OK' && data.results.length > 0) {
+        const formattedAddress = data.results[0].formatted_address;
+        setAddress(formattedAddress);
+        console.log('Address:', formattedAddress);
+      } else {
+        setAddress('No address found');
+      }
+    } catch (error) {
+      console.log('Geocoding Error:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Header Section */}
@@ -33,27 +106,67 @@ const RidePickup = () => {
         {/* Pickup Location Input */}
         <View style={styles.inputContainer}>
           <SearchIcon />
-          <TextInput
-            style={styles.inputField}
-            placeholder="Search pick-up location"
+          <GooglePlacesAutocomplete
+            placeholder="From"
+            fetchDetails={true}
+            enablePoweredByContainer={false}
+            debounce={300}
+            styles={{
+              textInputContainer: {
+                flex: 1,
+                backgroundColor: 'transparent',
+              },
+              textInput: {
+                marginTop: responsive.margin(5),
+                height: responsive.height(40),
+                fontSize: 16,
+                backgroundColor: 'transparent',
+                borderBottomWidth: 0,
+              },
+              listView: {
+                position: 'absolute',
+                top: responsive.height(54),
+                width: '100%',
+                backgroundColor: 'white',
+                zIndex: 999,
+                borderRadius: 8,
+              },
+            }}
+            onPress={(data, details = null) => {
+              console.log('Selected Place:', data, details);
+            }}
+            query={{
+              key: 'AIzaSyAvG0ZP37y_tEwcQiLaHaCTLR9ceMHbnJ0',
+              language: 'en',
+            }}
           />
           <SearchInputMap style={styles.searchInputIcon} />
         </View>
 
         {/* Destination Card */}
-        <View style={styles.destinationContainer}>
+        <TouchableOpacity
+          style={styles.destinationContainer}
+          onPress={() => {
+            if (address) {
+              navigation.navigate('Ride');
+            } else {
+              Alert.alert('Error', 'Please select a valid destination first.');
+            }
+          }}>
           <LocationUnSelect />
-          <Text style={styles.destinationText}>Destination</Text>
-        </View>
+          <Text style={styles.destinationText} numberOfLines={1}>
+            {address ? address : 'Destination'}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Location Section */}
-      <TouchableOpacity
-        style={styles.locationContainer}
-        onPress={() => navigation.navigate('Ride')}>
+      <TouchableOpacity style={styles.locationContainer} onPress={getLocation}>
         <View style={styles.locationRow}>
           <CurrentLocation />
-          <Text style={styles.locationText}>My location</Text>
+          <Text style={styles.locationText}>
+            {location ? 'Location fetched' : 'My location'}
+          </Text>
         </View>
 
         {/* Background Image */}

@@ -1,28 +1,28 @@
 import 'react-native-reanimated';
 import 'react-native-get-random-values';
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
-import auth from '@react-native-firebase/auth';
+import {Icon} from 'react-native-elements';
 
-// Screens
 import QuickRide from './src/screens/QuickRide';
 import HomeScreen from './src/screens/HomeScreen';
 import WalletScreen from './src/screens/WalletScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
-import {Icon} from 'react-native-elements';
 import OrderStatus from './src/screens/OrderStatus';
 import ServicesBookNow from './src/screens/ServicesBookNow';
 import RidePickup from './src/screens/RidePickup';
 
+import {UserProvider, useUser} from './src/context/UserContext';
+
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-//  Main Tabs
+// Main Tabs (Bottom Navigation)
 const MainTabs = () => (
   <Tab.Navigator
     screenOptions={({route}) => ({
@@ -45,7 +45,7 @@ const MainTabs = () => (
   </Tab.Navigator>
 );
 
-// Main App Stack
+// Main Stack Navigation
 const MainStack = () => (
   <Stack.Navigator screenOptions={{headerShown: false}}>
     <Stack.Screen name="MainTabs" component={MainTabs} />
@@ -55,7 +55,7 @@ const MainStack = () => (
   </Stack.Navigator>
 );
 
-// Auth Stack
+// Authentication Stack
 const AuthStack = () => (
   <Stack.Navigator screenOptions={{headerShown: false}}>
     <Stack.Screen name="Login" component={LoginScreen} />
@@ -63,14 +63,8 @@ const AuthStack = () => (
   </Stack.Navigator>
 );
 
-//  App Component
 const App = () => {
-  const [user, setUser] = useState(true);
-
-  // useEffect(() => {
-  //   const unsubscribe = auth().onAuthStateChanged(setUser);
-  //   return unsubscribe;
-  // }, []);
+  const {user} = useUser();
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>
@@ -81,4 +75,8 @@ const App = () => {
   );
 };
 
-export default App;
+export default () => (
+  <UserProvider>
+    <App />
+  </UserProvider>
+);

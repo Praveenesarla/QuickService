@@ -28,12 +28,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 15,
+    padding: responsive.padding(15),
   },
   headerText: {
     fontSize: responsive.fontSize(22),
     fontFamily: 'Outfit-SemiBold',
     color: '#000000',
   },
-  logo: {height: 40, width: 120},
+  logo: {height: responsive.height(40), width: responsive.width(120)},
 });

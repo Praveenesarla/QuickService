@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   stepContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: responsive.height(20), // Increased from 10 to 30 for more spacing
+    marginBottom: responsive.height(20),
     position: 'relative',
   },
   circle: {
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   line: {
     position: 'absolute',
     width: 2,
-    height: responsive.height(40), // Increased from 30 to 50 for more spacing
+    height: responsive.height(40),
     left: responsive.width(12),
     top: responsive.height(24),
   },

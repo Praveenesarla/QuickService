@@ -12,6 +12,8 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Header from '../components/Header';
 import {Button} from 'react-native-paper';
+import responsive from '../utils/responsive';
+import WalletOfferCard from '../components/WalletOfferCard';
 
 const {height} = Dimensions.get('window');
 
@@ -116,6 +118,26 @@ const WalletScreen = () => {
           showsVerticalScrollIndicator={false}
         />
       </View>
+      <View style={{flex: 1}}>
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{
+            justifyContent: 'center',
+            alignItems: 'flex-end',
+            gap: 10,
+            paddingBottom: responsive.padding(10),
+          }}
+          data={[
+            {id: 1, text: 'Get 1 reward point for every ₹20 added in wallet.'},
+            {id: 2, text: 'Get 1 reward point for every ₹20 added in wallet.'},
+            {id: 3, text: 'Get 1 reward point for every ₹20 added in wallet.'},
+          ]}
+          renderItem={({item}) => <WalletOfferCard text={item.text} />}
+          keyExtractor={item => item.id.toString()}
+        />
+      </View>
+      {/* Offers List */}
     </View>
   );
 };
@@ -142,27 +164,36 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'lightgrey',
   },
-  balanceAmount: {fontSize: 20, fontWeight: 'bold'},
-  balanceText: {color: '#B82929'},
+  balanceAmount: {
+    fontSize: responsive.fontSize(20),
+    fontFamily: 'Outfit-Regular',
+    color: '#000000',
+  },
+  balanceText: {
+    color: '#B82929',
+    fontSize: responsive.fontSize(12),
+    fontFamily: 'Outfit-Light',
+  },
   addMoneyButton: {
     borderColor: '#B82929',
     borderWidth: 1.5,
     borderRadius: 12,
   },
   addMoneyLabel: {
-    fontSize: 12,
+    fontSize: responsive.fontSize(12),
     color: '#B82929',
-    fontWeight: 'bold',
+    fontFamily: 'Outfit-Regular',
   },
-  transactionContainer: {backgroundColor: '#FFF', height: height * 0.72},
+  transactionContainer: {backgroundColor: '#FFF', height: height * 0.58},
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    padding: 10,
-    paddingBottom: 15,
+    fontSize: responsive.fontSize(20),
+    fontFamily: 'Outfit-Medium',
+    padding: responsive.fontSize(10),
+    paddingBottom: responsive.fontSize(15),
     borderColor: '#E0E8F2',
-    borderWidth: 1.5,
-    marginBottom: 5,
+    borderWidth: responsive.width(1.5),
+    marginBottom: responsive.margin(5),
+    color: '#000000',
   },
   transactionRow: {
     flexDirection: 'row',
@@ -175,20 +206,41 @@ const styles = StyleSheet.create({
   avatar: {backgroundColor: '#CBD5E1', marginRight: 10, borderRadius: 10},
   transactionDetails: {flex: 1},
   transactionDetailsRight: {flex: 1, alignItems: 'flex-end'},
-  transactionTitle: {fontSize: 17, fontWeight: 'bold'},
-  transactionId: {fontSize: 11, marginTop: 4, color: 'gray'},
-  transactionIdText: {fontSize: 11, color: 'black'},
-  transactionAmount: {fontSize: 16, fontWeight: 'bold', marginBottom: 6},
+  transactionTitle: {
+    fontSize: responsive.fontSize(17),
+    fontFamily: 'Outfit-Medium',
+    color: '#26273A',
+  },
+  transactionId: {
+    fontSize: responsive.fontSize(11),
+    marginTop: responsive.margin(4),
+    color: '#26273A99',
+  },
+  transactionIdText: {
+    fontSize: responsive.fontSize(12),
+    color: '#26273A',
+    fontFamily: 'Outfit-Medium',
+  },
+  transactionAmount: {
+    fontSize: responsive.fontSize(16),
+    fontFamily: 'Outfit-Medium',
+    marginBottom: responsive.margin(6),
+    color: '#26273A',
+  },
 
   rewardTag: {
     backgroundColor: '#FECACA',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 5,
-    fontSize: 10,
+    paddingHorizontal: responsive.padding(8),
+    paddingVertical: responsive.padding(4),
+    borderRadius: responsive.borderRadius(5),
+    fontSize: responsive.fontSize(10),
     color: '#B82929',
   },
-  transactionDate: {fontSize: 10, color: 'gray', marginTop: 4},
+  transactionDate: {
+    fontSize: responsive.fontSize(10),
+    color: '#26273A99',
+    marginTop: responsive.margin(4),
+  },
 });
 
 export default WalletScreen;

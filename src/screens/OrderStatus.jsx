@@ -1,10 +1,18 @@
-import {FlatList, Image, StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {useState} from 'react';
 import responsive from '../utils/responsive';
 import {Icon} from 'react-native-elements';
 import OrderCard from '../components/OrderCard';
 import VerticalStepsIndicator from '../components/VerticalStepIndicator';
 import {useNavigation} from '@react-navigation/native';
+import {launchImageLibrary} from 'react-native-image-picker';
 
 const orders = [
   {
@@ -21,52 +29,20 @@ const orders = [
     vehicle: 'J890238',
     status: 'Processing',
   },
-  {
-    id: '3',
-    orderId: 'Q29361471238',
-    bookingDate: 'Fri Feb 07 2025',
-    vehicle: 'J890239',
-    status: 'Completed',
-  },
-  {
-    id: '4',
-    orderId: 'Q29361471238',
-    bookingDate: 'Fri Feb 07 2025',
-    vehicle: 'J890239',
-    status: 'Completed',
-  },
-  {
-    id: '5',
-    orderId: 'Q29361471238',
-    bookingDate: 'Fri Feb 07 2025',
-    vehicle: 'J890239',
-    status: 'Completed',
-  },
-  {
-    id: '6',
-    orderId: 'Q29361471238',
-    bookingDate: 'Fri Feb 07 2025',
-    vehicle: 'J890239',
-    status: 'Completed',
-  },
-  {
-    id: '7',
-    orderId: 'Q29361471238',
-    bookingDate: 'Fri Feb 07 2025',
-    vehicle: 'J890239',
-    status: 'Completed',
-  },
-  {
-    id: '8',
-    orderId: 'Q29361471238',
-    bookingDate: 'Fri Feb 07 2025',
-    vehicle: 'J890239',
-    status: 'Completed',
-  },
 ];
 
 const OrderStatus = () => {
   const navigation = useNavigation();
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const handleImagePicker = () => {
+    launchImageLibrary({mediaType: 'photo'}, response => {
+      if (response.assets && response.assets.length > 0) {
+        setSelectedImage(response.assets[0].uri);
+      }
+    });
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.flexContainer}>
@@ -98,71 +74,60 @@ const OrderStatus = () => {
               <Text style={styles.orderValue}>N/A</Text>
             </View>
           </View>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <View style={{width: responsive.width(117)}}>
-              <Text style={styles.orderTitle}>Vehicle</Text>
-              <Text style={styles.orderValue}>J890237</Text>
-            </View>
-            <View style={{width: responsive.width(117)}}>
-              <Text style={styles.orderTitle}>Service</Text>
-              <Text style={styles.orderValue}>MRF tyre</Text>
-            </View>
-          </View>
         </View>
 
-        {/* Steps Indicator */}
-
+        {/* Steps Indicator and Image Picker */}
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <VerticalStepsIndicator currentStatus={orders[1].status} />
-          <View
+
+          {/* Image Picker */}
+          <TouchableOpacity
+            onPress={handleImagePicker}
             style={{
               alignItems: 'center',
               marginTop: responsive.margin(14),
               gap: 5,
             }}>
-            <Image source={require('../../src/assets/uploadImage.png')} />
-            <Text
-              style={{
-                color: '#281B1B',
-                fontFamily: 'Outfit-Regular',
-                fontSize: responsive.fontSize(13),
-              }}>
-              Upload the image (optional)
-            </Text>
-          </View>
+            {selectedImage ? (
+              <Image
+                source={{uri: selectedImage}}
+                style={{
+                  width: responsive.width(80),
+                  height: responsive.height(80),
+                  borderRadius: 10,
+                }}
+              />
+            ) : (
+              <>
+                <Image source={require('../assets/uploadImage.png')} />
+                <Text style={styles.uploadText}>
+                  Upload the image (optional)
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
         </View>
 
-        {/* Steps Indicator */}
-
+        {/* Your Orders Section */}
         <View>
-          <Text
-            style={{
-              color: '#B82929',
-              fontSize: responsive.fontSize(20),
-              fontFamily: 'Outfit-Bold',
-            }}>
-            Your Orders
-          </Text>
-          <View>
-            <FlatList
-              contentContainerStyle={{
-                gap: 10,
-
-                paddingVertical: responsive.padding(10),
-              }}
-              data={orders}
-              keyExtractor={item => item.id}
-              renderItem={({item, index}) => (
-                <OrderCard
-                  orderId={item.orderId}
-                  bookingDate={item.bookingDate}
-                  vehicle={item.vehicle}
-                  status={item.status}
-                  selected={index === 0}
-                />
-              )}
-            />
-          </View>
+          <Text style={styles.yourOrdersText}>Your Orders</Text>
+          <FlatList
+            contentContainerStyle={{
+              gap: 10,
+              paddingVertical: responsive.padding(10),
+            }}
+            data={orders}
+            keyExtractor={item => item.id}
+            renderItem={({item, index}) => (
+              <OrderCard
+                orderId={item.orderId}
+                bookingDate={item.bookingDate}
+                vehicle={item.vehicle}
+                status={item.status}
+                selected={index === 0}
+              />
+            )}
+          />
         </View>
       </View>
     </View>
@@ -194,5 +159,15 @@ const styles = StyleSheet.create({
   orderValue: {
     fontFamily: 'Outfit-Light',
     fontSize: responsive.fontSize(10),
+  },
+  uploadText: {
+    color: '#281B1B',
+    fontFamily: 'Outfit-Regular',
+    fontSize: responsive.fontSize(13),
+  },
+  yourOrdersText: {
+    color: '#B82929',
+    fontSize: responsive.fontSize(20),
+    fontFamily: 'Outfit-Bold',
   },
 });

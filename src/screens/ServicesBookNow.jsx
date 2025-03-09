@@ -12,12 +12,15 @@ import responsive from '../utils/responsive';
 import CustomInput from '../components/CustomInput';
 import ServiceBox from '../components/ServiceBox';
 import {useNavigation} from '@react-navigation/native';
+import {launchImageLibrary} from 'react-native-image-picker';
 
 const ServicesBookNow = () => {
   const [vehNumber, setVehNumber] = useState('');
   const [address, setAddress] = useState('');
   const [mention, setMention] = useState('');
+  const [selectedImage, setSelectedImage] = useState(null);
   const navigation = useNavigation();
+
   const selectServices = [
     {id: 1, title: 'MRF tyre'},
     {id: 2, title: 'Okaya Battery'},
@@ -25,12 +28,21 @@ const ServicesBookNow = () => {
     {id: 4, title: 'Car Cleaning'},
   ];
 
+  const handleImagePick = () => {
+    launchImageLibrary({mediaType: 'photo'}, response => {
+      if (response.assets && response.assets.length > 0) {
+        setSelectedImage(response.assets[0].uri);
+      }
+    });
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.headerContainer}>
         <View style={styles.flexContainer}>
           <Icon
+            onPress={() => navigation.goBack()}
             size={responsive.fontSize(25)}
             color={'#000'}
             name="keyboard-backspace"
@@ -40,12 +52,21 @@ const ServicesBookNow = () => {
         <Text style={styles.bookNow}>Book Now</Text>
       </View>
 
-      <View style={styles.centerAlign}>
+      {/* Image Picker */}
+      <TouchableOpacity style={styles.centerAlign} onPress={handleImagePick}>
         <View style={styles.uploadContainer}>
-          <Image source={require('../../src/assets/uploadImage.png')} />
-          <Text style={styles.uploadText}>Upload the car image (optional)</Text>
+          {selectedImage ? (
+            <Image source={{uri: selectedImage}} style={styles.selectedImage} />
+          ) : (
+            <Image source={require('../../src/assets/uploadImage.png')} />
+          )}
+          <Text style={styles.uploadText}>
+            {selectedImage
+              ? 'Image Selected'
+              : 'Upload the car image (optional)'}
+          </Text>
         </View>
-      </View>
+      </TouchableOpacity>
 
       {/* Details Box  */}
       <View style={styles.detailsContainer}>
@@ -86,7 +107,7 @@ const ServicesBookNow = () => {
         numColumns={2}
         data={selectServices}
         renderItem={({item}) => <ServiceBox text={item.title} />}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.id.toString()}
       />
 
       <TouchableOpacity
@@ -138,6 +159,11 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Regular',
     fontSize: responsive.fontSize(13),
   },
+  selectedImage: {
+    width: responsive.width(100),
+    height: responsive.height(100),
+    borderRadius: responsive.borderRadius(4),
+  },
   detailsContainer: {
     alignItems: 'center',
     paddingVertical: responsive.padding(35),
@@ -165,18 +191,20 @@ const styles = StyleSheet.create({
   },
   flatListContainer: {
     gap: 10,
-    paddingHorizontal: 10,
+    paddingHorizontal: responsive.padding(10),
   },
   flatListColumn: {
     justifyContent: 'space-between',
   },
   bookNowButton: {
+    marginVertical: responsive.margin(10),
     width: responsive.width(118),
     height: responsive.height(27),
     backgroundColor: '#B82929',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: responsive.borderRadius(4),
+    alignSelf: 'flex-end',
   },
   bookNowText: {
     color: '#FAFAFA',
