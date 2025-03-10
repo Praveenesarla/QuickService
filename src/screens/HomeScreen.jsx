@@ -30,7 +30,7 @@ const HomeScreen = () => {
         onPress={() => navigation.navigate('ServicesBookNow')}>
         <Image
           resizeMode="contain"
-          source={require('../assets/cartButton.png')} // Fixed path
+          source={require('../assets/cartButton.png')}
           style={{width: '100%', height: '100%'}}
         />
       </TouchableOpacity>

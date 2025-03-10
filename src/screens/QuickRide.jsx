@@ -43,10 +43,13 @@ import GoogleLocationSearch from '../components/MapViewBody/GoogleLocationSearch
 import RiderDetails from '../components/MapViewHeader/RiderDetails';
 import AddressView from '../components/MapViewHeader/AddressView';
 import OTPDisplay from '../components/MapViewHeader/OTPDisplay';
+import BackButton from 'react-native-vector-icons/Ionicons';
+import {useNavigation} from '@react-navigation/native';
 
 const {height} = Dimensions.get('window');
 
 const QuickRide = () => {
+  const navigation = useNavigation();
   const rideOptions = [
     {
       id: 1,
@@ -91,6 +94,16 @@ const QuickRide = () => {
       setStatus('rider');
     } else {
       setStatus('otp');
+    }
+  };
+
+  const handleBackPress = () => {
+    if (status === 'places') {
+      navigation.goBack();
+    } else if (status === 'List') {
+      setStatus('places');
+    } else if (status === 'rider' || 'otp') {
+      setStatus('List');
     }
   };
 
@@ -168,23 +181,25 @@ const QuickRide = () => {
                 longitudeDelta: 0.0121,
               }}
             />
-            {isFloatingViewVisible ? (
-              <View style={styles.floatingButton}>
-                {/* Floating button */}
-                <TouchableOpacity>
-                  <FloatingMenu />
-                </TouchableOpacity>
-                {/* Text input */}
-                <TextInput
-                  style={{width: '100%'}}
-                  placeholder="355 Mills Extension, Emmetcester 18477"
-                />
+
+            <TouchableOpacity style={styles.floatingButton2}>
+              <BackButton
+                onPress={handleBackPress}
+                name="arrow-back-circle-outline"
+                size={40}
+                color="#000000"
+              />
+              <View>
+                <Text
+                  style={{
+                    fontSize: responsive.fontSize(12),
+                    fontFamily: 'Outfit-Regular',
+                    color: '#000000',
+                  }}>
+                  355 Mills Extension, Emmetcester 18477
+                </Text>
               </View>
-            ) : (
-              <TouchableOpacity style={styles.floatingButton2}>
-                <FloatingMenu />
-              </TouchableOpacity>
-            )}
+            </TouchableOpacity>
 
             {/* Floating View */}
           </View>
@@ -324,15 +339,20 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   floatingButton2: {
+    backgroundColor: '#EBEBEB',
+    borderWidth: 0.5,
     position: 'absolute',
-    top: responsive.height(35),
+    top: responsive.height(28),
     left: responsive.width(18),
-    width: responsive.width(45),
+    width: '90%',
     height: responsive.height(45),
     borderRadius: 25,
-    justifyContent: 'center',
     alignItems: 'center',
+    // alignItems: 'center',
     shadowOffset: {width: 0, height: 2},
+    flexDirection: 'row',
+    paddingHorizontal: responsive.padding(8),
+    gap: 5,
   },
 });
 

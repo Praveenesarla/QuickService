@@ -6,6 +6,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
 import {Icon} from 'react-native-elements';
+import {Provider} from 'react-redux';
 
 import QuickRide from './src/screens/QuickRide';
 import HomeScreen from './src/screens/HomeScreen';
@@ -18,6 +19,7 @@ import ServicesBookNow from './src/screens/ServicesBookNow';
 import RidePickup from './src/screens/RidePickup';
 
 import {UserProvider, useUser} from './src/context/UserContext';
+import store from './src/redux/slices/store';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -77,6 +79,8 @@ const App = () => {
 
 export default () => (
   <UserProvider>
-    <App />
+    <Provider store={store}>
+      <App />
+    </Provider>
   </UserProvider>
 );

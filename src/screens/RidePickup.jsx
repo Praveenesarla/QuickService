@@ -97,7 +97,9 @@ const RidePickup = () => {
       <View style={styles.headerContainer}>
         <View style={styles.headerRow}>
           <View style={styles.headerLeft}>
-            <Close width={30} height={30} />
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Close width={30} height={30} />
+            </TouchableOpacity>
             <Text style={styles.headerText}>Your route</Text>
           </View>
           <RideAdd width={23} height={23} />
